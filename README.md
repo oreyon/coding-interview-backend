@@ -118,7 +118,7 @@ interface Todo {
 
 _for this example we use npm, but you are free to choose your own package manager_
 
-### 1. Setup & Run Tests
+### 1. Setup & Run Tests (DONE)
 
 1. Install dependencies:
 
@@ -140,34 +140,34 @@ Your goal is to make them **all pass** without changing the tests.
 
 ---
 
-### 2. Implement the HTTP API
+### 2. Implement the HTTP API (DONE)
 
 Implement a minimal REST API using a framework of your choice, wired to `TodoService`:
 
 Required endpoints (suggested shape):
 
-- `POST /users`
+- `POST /users` (DONE)
 
   - Request body: `{ "email": string, "name": string }`
   - Response: created `User` object.
 
-- `POST /todos`
+- `POST /todos` (DONE)
 
   - Request body: `{ "userId": string, "title": string, "description"?: string, "remindAt"?: string ISO date }`
   - Response: created `Todo` object.
 
-- `GET /todos?userId=...`
+- `GET /todos?userId=...` (DONE)
 
   - Response: array of `Todo` objects for that user.
 
-- `PATCH /todos/:id/complete`
+- `PATCH /todos/:id/complete` (DONE)
 
   - Marks a todo as `DONE`.
   - Response: updated `Todo`.
 
 Expectations:
 
-- You decide how to implement `HttpServer`:
+- You decide how to implement `HttpServer`: (DONE)
 
   - You can implement `HttpServer` from `HttpServerShell.ts` on top of Express/Koa/Fastify/etc.
   - Or you can bypass the shell and wire the framework directly in `app/main.ts`.
@@ -202,16 +202,16 @@ Examples (not a complete list):
 
 You should:
 
-1. Improve **error handling** in `TodoService`:
+1. Improve **error handling** in `TodoService` (DONE):
 
    - Prefer explicit error types/messages or at least clearly distinguish "user not found" vs "todo not found".
 
-2. Add **basic validation** for todo creation:
+2. Add **basic validation** for todo creation (DONE):
 
    - `title` must be non-empty (not just whitespace).
    - `userId` must refer to an existing user.
 
-3. Fix the **in-memory repository behavior**, such as:
+3. Fix the **in-memory repository behavior**, such as (DONE):
 
    - Reasonable ID generation.
    - Correct use of `===`.
@@ -233,11 +233,11 @@ A naive scheduler is provided via `IScheduler` and `SimpleScheduler`.
 
 Your goals:
 
-1. Ensure that the scheduler is actually configured and running:
+1. Ensure that the scheduler is actually configured and running (DONE):
 
    - E.g. from `app/main.ts`, schedule a recurring task that calls `TodoService.processReminders(new Date())` every N seconds.
 
-2. Make `TodoService.processReminders` behavior correct:
+2. Make `TodoService.processReminders` behavior correct (DONE):
 
    - Only todos with:
 
@@ -250,7 +250,7 @@ Your goals:
 
      - Already `REMINDER_DUE` todos should not flip back or cause inconsistent behavior.
 
-3. Improve `SimpleScheduler` robustness:
+3. Improve `SimpleScheduler` robustness (DONE):
 
    - Avoid creating multiple intervals for the same task name.
    - Handle errors inside the scheduled function (e.g. try/catch and logging), to avoid crashing the process.
@@ -264,11 +264,11 @@ You do **not** need to build a full-featured job queue; just make it safe and pr
 
 These are **optional**, but good opportunities to show your thinking:
 
-- Add **soft delete** for todos (e.g. a `deletedAt` field) and make listing ignore deleted items.
-- Add **pagination** to `GET /todos` (e.g. `limit` and `offset` query params).
+- Add **soft delete** for todos (e.g. a `deletedAt` field) and make listing ignore deleted items. (NOT IMPLEMENTED)
+- Add **pagination** to `GET /todos` (e.g. `limit` and `offset` query params). (NOT IMPLEMENTED)
 - Add **structured logging** around reminder processing (start, end, errors, number of processed todos).
 - Make it easy to swap out the repository implementation (e.g. in-memory vs database-backed) using dependency injection or simple factories.
-- Add input validation using a library (e.g. zod, yup) if you prefer.
+- Add input validation using a library (e.g. zod, yup) if you prefer. (DONE)
 
 If you implement any of these, briefly mention them in your notes.
 
