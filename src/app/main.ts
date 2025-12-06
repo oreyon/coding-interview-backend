@@ -8,6 +8,9 @@ import { CollaborationService } from '../service/CollaborationService';
 import { InMemoryCollaborationRepository } from '../infra/InMemoryCollaborationRepository';
 import { InMemoryTodoRepository } from '../infra/InMemoryTodoRepository';
 import { InMemoryUserRepository } from '../infra/InMemoryUserRepository';
+import { RabbitMQReminder } from './RabbitMQReminder';
+import { RabbitMQService } from './RabbitMQService';
+import { ReminderConsumer } from './ReminderConsumer';
 import { SimpleScheduler } from '../infra/SimpleScheduler';
 import { TodoService } from '../service/TodoService';
 import { UserService } from '../service/UserService';
@@ -34,6 +37,11 @@ async function bootstrap() {
 		userRepo
 	);
 
+	await RabbitMQService.initializeRabbitMQ();
+	const producerChannel = await RabbitMQService.getProducerChannel();
+	await RabbitMQReminder(producerChannel);
+	await ReminderConsumer(todoService);
+
 	console.log('Todo Reminder Service - Bootstrap Complete');
 	console.log('Repositories and services initialized.');
 	console.log('Note: HTTP server implementation left for candidate to add.');
@@ -44,11 +52,11 @@ async function bootstrap() {
 	// Candidate should implement HTTP server here
 	// Example: scheduler.scheduleRecurring('reminder-check', 60000, () => todoService.processReminders());
 
-	scheduler.scheduleRecurring(
-		'reminder-check',
-		60000,
-		async () => await todoService.processReminders()
-	);
+	// scheduler.scheduleRecurring(
+	// 	'reminder-check',
+	// 	60000,
+	// 	async () => await todoService.processReminders()
+	// );
 
 	// TODO: Implement HTTP server with the following routes:
 	// POST /users - Create a new user

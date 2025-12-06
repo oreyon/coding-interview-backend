@@ -3,6 +3,7 @@ import { CreateTodoDTO, Todo, UpdateTodoDTO } from '../domain/Todo';
 import { HTTPException } from 'hono/http-exception';
 import { ITodoRepository } from '../core/ITodoRepository';
 import { IUserRepository } from '../core/IUserRepository';
+import { ReminderProducer } from '../app/ReminderProducer';
 import { TodoValidation } from '../validation/TodoValidation';
 import { User } from '../domain/User';
 import { ValidationService } from '../app/ValidationService';
@@ -33,6 +34,11 @@ export class TodoService {
 			remindAt: data.remindAt ? new Date(data.remindAt) : null,
 			// remindAt: new Date(Date.now() + 5000),
 		});
+
+		if (todo.remindAt) {
+			const delay = Math.max(0, todo.remindAt.getTime() - Date.now());
+			await ReminderProducer.send(todo.id, delay);
+		}
 
 		return todo;
 	}
@@ -170,6 +176,14 @@ export class TodoService {
 			}
 		);
 
+		if (updateRequest.remindAt) {
+			const newDelay = Math.max(
+				0,
+				new Date(updateRequest.remindAt).getTime() - Date.now()
+			);
+			await ReminderProducer.send(updateRequest.id, newDelay);
+		}
+
 		if (!updateTodo) {
 			throw new HTTPException(400, { message: 'failed update todo' });
 		}
@@ -189,5 +203,29 @@ export class TodoService {
 		}
 
 		return true;
+	}
+
+	async markReminderDue(todoId: string) {
+		const todo = await this.todoRepo.findById(todoId);
+		if (!todo) {
+			return;
+		}
+
+		if (todo.status !== 'PENDING') {
+			return;
+		}
+
+		if (!todo.remindAt) {
+			return;
+		}
+
+		if (todo.remindAt > new Date()) {
+			return;
+		}
+
+		await this.todoRepo.update(todoId, {
+			status: 'REMINDER_DUE',
+			updatedAt: new Date(),
+		});
 	}
 }
